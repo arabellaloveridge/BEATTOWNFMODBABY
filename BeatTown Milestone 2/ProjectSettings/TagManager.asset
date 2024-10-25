@@ -7,7 +7,6 @@ TagManager:
   - Enemy
   - AI
   - Wall
-  - Barra
   layers:
   - Default
   - TransparentFX
