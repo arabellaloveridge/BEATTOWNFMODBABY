@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 7962051666227067548}
   m_Layer: 22
   m_Name: Barra
-  m_TagString: Enemy
+  m_TagString: AI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
