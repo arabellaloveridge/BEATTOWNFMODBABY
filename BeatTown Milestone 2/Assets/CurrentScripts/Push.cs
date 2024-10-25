@@ -6,64 +6,60 @@ using static StateMachine;
 
 public class Push : MonoBehaviour
 {
-    public Tilemap tilemap;
-    public Hook hook;
-    private Transform selectedTarget; // Now selects both Enemy and Barra
-    private bool isPushing;
-    private PlayerMove playerMove;
-    private PlayerFatigue playerFatigue;
+    public GameObject PPShighlight;
+    public GameObject moveMentHighlight;
+    public Tilemap tilemap; // Reference to the Tilemap
+    public Hook hook; // Reference to the Hook script
+    private Transform selectedEnemy; // Currently selected enemy
+    private bool isPushing; // State to track if we are in push mode
+    private PlayerMove playerMove; // Reference to PlayerMove instance
+    private PlayerFatigue playerFatigue; // Reference to PlayerFatigue instance
     private StateMachine stateMachine;
 
-    private void Awake()
+    private void Awake() // called before Start()
     {
         playerMove = GetComponent<PlayerMove>();
         playerFatigue = GetComponent<PlayerFatigue>();
         stateMachine = GetComponent<StateMachine>();
-
-        if (hook == null)
-        {
-            hook = Hook.Instance;
-            if (hook == null)
-            {
-                Debug.LogError("Hook instance not found. Ensure Hook is present in the scene.");
-            }
-            else
-            {
-                Debug.Log("Hook instance assigned successfully.");
-            }
-        }
     }
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        // Check for mouse input to select a tile if pushing
+        if (Input.GetMouseButtonDown(0)) // Left mouse button
         {
             if (isPushing)
             {
-                if (selectedTarget != null)
+                if (selectedEnemy != null)
                 {
-                    TryPushTarget();
+                    // Try to push the enemy
+                    TryPushEnemy();
                 }
                 else
                 {
-                    SelectTarget();
+                    // Select an enemy if none is currently selected
+                    SelectEnemy();
                 }
             }
         }
     }
 
-    public void OnPushButtonPressed()
+    public void OnPushButtonPressed() // NOTE: PUSH BUTTON AGAIN TO CONFIRM PUSH
     {
+        PPShighlight.SetActive(true);
+        moveMentHighlight.SetActive(false);
+        // Cancel any movement when the push button is pressed
         playerMove.CancelMove();
-        isPushing = true;
-        selectedTarget = null;
+
+        isPushing = true; // Activate pushing mode
+        selectedEnemy = null; // Reset selected enemy
         Debug.Log("Push button pressed, current action: " + playerMove.CurrentAction);
     }
 
     public void CancelPush()
     {
         isPushing = false;
-        selectedTarget = null;
+        selectedEnemy = null; // Reset selected enemy after push attempt
         Debug.Log("Push action canceled.");
     }
 
@@ -72,60 +68,76 @@ public class Push : MonoBehaviour
         return isPushing;
     }
 
-    void SelectTarget()
+    void SelectEnemy()
     {
+        // Raycast to check if an enemy is clicked
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
 
-        if (hit.collider != null && (hit.collider.CompareTag("Enemy") || hit.collider.CompareTag("Barra")))
+        if (hit.collider != null)
         {
-            Transform target = hit.collider.transform;
-
-            Vector3Int playerPosition = playerMove.CurrentTilePosition;
-            Vector3Int targetPosition = tilemap.WorldToCell(target.position);
-
-            int deltaX = Mathf.Abs(targetPosition.x - playerPosition.x);
-            int deltaY = Mathf.Abs(targetPosition.y - playerPosition.y);
-
-            if (deltaX + deltaY == 1)
+            // Check if the clicked object is tagged as "Enemy"
+            if (hit.collider.CompareTag("AI"))
             {
-                selectedTarget = target;
-                Debug.Log($"Selected target: {selectedTarget.name}");
-            }
-            else
-            {
-                Debug.Log("Target is not adjacent to the player (1 tile away in cardinal directions).");
+                Transform enemy = hit.collider.transform;
+
+                // Get the player's current tile position and the enemy's current tile position
+                Vector3Int playerPosition = playerMove.CurrentTilePosition;
+                Vector3Int enemyPosition = tilemap.WorldToCell(enemy.position);
+
+                // Calculate the difference between the player's position and the enemy's position
+                int deltaX = Mathf.Abs(enemyPosition.x - playerPosition.x);
+                int deltaY = Mathf.Abs(enemyPosition.y - playerPosition.y);
+
+                // Check if the enemy is exactly 1 tile away in one direction (up, down, left, or right)
+                if ((deltaX + deltaY == 1)) // Either deltaX or deltaY must be 1, but not both
+                {
+                    // Enemy is within selection range
+                    selectedEnemy = enemy; // Select the enemy
+                    Debug.Log($"Selected enemy: {selectedEnemy.name}");
+                }
+                else
+                {
+                    Debug.Log("Enemy is not adjacent to the player (1 tile away in cardinal directions).");
+                }
             }
         }
     }
 
-    void TryPushTarget()
+    void TryPushEnemy()
     {
-        if (selectedTarget != null)
+        if (selectedEnemy != null)
         {
+            // Get the player's current position in grid coordinates
             Vector3Int playerPosition = playerMove.CurrentTilePosition;
-            Vector3Int targetPosition = tilemap.WorldToCell(selectedTarget.position);
 
+            // Get the enemy's position in grid coordinates
+            Vector3Int enemyPosition = tilemap.WorldToCell(selectedEnemy.position);
+
+            // Determine the push direction (up, down, left, or right)
             Vector3Int direction = Vector3Int.zero;
 
-            if (playerPosition.x < targetPosition.x)
-                direction = Vector3Int.right;
-            else if (playerPosition.x > targetPosition.x)
-                direction = Vector3Int.left;
-            else if (playerPosition.y < targetPosition.y)
-                direction = Vector3Int.up;
-            else if (playerPosition.y > targetPosition.y)
-                direction = Vector3Int.down;
+            if (playerPosition.x < enemyPosition.x)
+                direction = Vector3Int.right;  // Push right
+            else if (playerPosition.x > enemyPosition.x)
+                direction = Vector3Int.left;   // Push left
+            else if (playerPosition.y < enemyPosition.y)
+                direction = Vector3Int.up;     // Push up
+            else if (playerPosition.y > enemyPosition.y)
+                direction = Vector3Int.down;   // Push down
 
-            Vector3Int furthestTile = FindFurthestTile(targetPosition, direction);
+            // Find the furthest valid tile in the determined direction
+            Vector3Int furthestTile = FindFurthestTile(enemyPosition, direction);
 
-            if (furthestTile != targetPosition)
+            // Move the enemy if the tile is valid
+            if (furthestTile != enemyPosition)
             {
-                OccupiedTilesManager.Instance.RemoveOccupiedPosition(targetPosition);
+                // Remove the enemy's old position from occupied positions
+                OccupiedTilesManager.Instance.RemoveOccupiedPosition(enemyPosition);
 
-                StartCoroutine(PushTargetToTile(selectedTarget, furthestTile));
-                playerFatigue.UseFatigue(playerFatigue.pushFatigueCost);
-                selectedTarget = null;
+                StartCoroutine(PushEnemyToTile(selectedEnemy, furthestTile));
+                playerFatigue.UseFatigue(playerFatigue.pushFatigueCost);  // Deduct fatigue for push
+                selectedEnemy = null;
                 isPushing = false;
             }
             else
@@ -135,101 +147,111 @@ public class Push : MonoBehaviour
         }
         else
         {
-            Debug.Log("No target selected for push.");
+            Debug.Log("No enemy selected for push.");
         }
     }
 
     Vector3Int FindFurthestTile(Vector3Int startTile, Vector3Int direction)
     {
         Vector3Int currentTile = startTile;
-        while (AIUtils.IsTileValid(tilemap, OccupiedTilesManager.Instance, currentTile + direction, hook))
+        while (IsTileValid(currentTile + direction))
         {
-            currentTile += direction;
+            currentTile += direction;  // Move to the next tile in the direction
         }
-        return currentTile;
+        return currentTile;  // Return the last valid tile
     }
 
-    private IEnumerator PushTargetToTile(Transform target, Vector3Int targetTilePosition)
+    // Coroutine for smooth movement of the enemy
+    private IEnumerator PushEnemyToTile(Transform enemy, Vector3Int targetTilePosition)
     {
+        PPShighlight.SetActive(false);
         stateMachine.ChangeState(WrestlerState.Push);
-        Vector3 startPosition = target.position;
-        Vector3 endPosition = tilemap.GetCellCenterWorld(targetTilePosition);
-        float travelTime = 0.5f;
+        Vector3 startPosition = enemy.position;
+        Vector3 targetPosition = tilemap.GetCellCenterWorld(targetTilePosition);
+        float travelTime = 0.5f; // Set the duration of the travel
         float elapsedTime = 0f;
 
-        EnemyHealth targetHealth = target.GetComponent<EnemyHealth>();
+        EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
 
-        bool targetDied = false;
-        void OnTargetDeath() { targetDied = true; }
+        bool enemyDied = false;
 
-        if (targetHealth != null)
+        // Subscribe to the OnDeath event
+        void OnEnemyDeath()
         {
-            targetHealth.OnDeath += OnTargetDeath;
+            enemyDied = true;
         }
 
+        if (enemyHealth != null)
+        {
+            enemyHealth.OnDeath += OnEnemyDeath;
+        }
+
+        // Move towards the target position over 'travelTime' seconds
         while (elapsedTime < travelTime)
         {
-            if (targetDied)
+            if (enemyDied)
             {
-                Debug.Log("Target died during push. Stopping movement.");
+                // Enemy has "died", stop movement
+                Debug.Log("Enemy died during push. Stopping movement.");
                 break;
             }
 
-            target.position = Vector3.Lerp(startPosition, endPosition, elapsedTime / travelTime);
+            enemy.position = Vector3.Lerp(startPosition, targetPosition, elapsedTime / travelTime);
             elapsedTime += Time.deltaTime;
-            yield return null;
+            yield return null;  // Wait for the next frame
         }
 
-        if (targetHealth != null)
+        // Unsubscribe from the OnDeath event
+        if (enemyHealth != null)
         {
-            targetHealth.OnDeath -= OnTargetDeath;
+            enemyHealth.OnDeath -= OnEnemyDeath;
         }
 
-        if (targetDied)
+        // Check if enemy died
+        if (enemyDied)
         {
             yield break;
         }
 
-        target.position = endPosition;
-        Debug.Log($"{target.name} has been pushed to {targetTilePosition}");
+        enemy.position = targetPosition;  // Ensure the enemy ends at the target tile
 
-        AIMove targetMove = target.GetComponent<AIMove>();
-        if (targetMove != null)
+        Debug.Log($"{enemy.name} has been pushed to {targetTilePosition}");
+
+        // Update enemy's current tile position
+        AIMove enemyMove = enemy.GetComponent<AIMove>();
+        if (enemyMove != null)
         {
-            OccupiedTilesManager.Instance.RemoveOccupiedPosition(targetMove.CurrentTilePosition);
-            targetMove.CurrentTilePosition = targetTilePosition;
-            OccupiedTilesManager.Instance.AddOccupiedPosition(targetMove.CurrentTilePosition);
+            enemyMove.CurrentTilePosition = targetTilePosition;
         }
 
-        Vector3Int targetTilePos = targetTilePosition;
-        Vector3Int hookTilePos = hook != null ? hook.GetHookPosition() : new Vector3Int();
+        // Add the enemy's new position to occupied positions
+        OccupiedTilesManager.Instance.AddOccupiedPosition(targetTilePosition);
 
-        if (hook != null && targetTilePos == hookTilePos)
+        // After moving the enemy, check if it is on the same tile as the hook
+        Vector3Int enemyTilePosition = targetTilePosition;
+        Vector3Int hookTilePosition = tilemap.WorldToCell(hook.transform.position);
+
+        if (enemyTilePosition == hookTilePosition)
         {
-            hook.HandleSwingOrPushIntoHook(target.gameObject);
+            // Enemy has been pushed into the hook
+            hook.HandleSwingOrPushIntoHook(enemy.gameObject);
         }
     }
 
-    public static class AIUtils
+    bool IsTileValid(Vector3Int tilePosition)
     {
-        public static bool IsAdjacent(Vector3Int origin, Vector3Int target)
+        // Check if the tile is within the tilemap
+        bool hasTile = tilemap.HasTile(tilePosition);
+
+        // Allow pushing into the hook's tile
+        Vector3Int hookTilePosition = tilemap.WorldToCell(hook.transform.position);
+        bool isOccupied = OccupiedTilesManager.Instance.IsTileOccupied(tilePosition);
+
+        if (tilePosition == hookTilePosition)
         {
-            int dx = Mathf.Abs(origin.x - target.x);
-            int dy = Mathf.Abs(origin.y - target.y);
-            return (dx + dy == 1);
+            isOccupied = false; // Allow moving into the hook tile
         }
 
-        public static bool IsTileValid(Tilemap tilemap, OccupiedTilesManager occupiedManager, Vector3Int tilePosition, Hook hook = null)
-        {
-            bool hasTile = tilemap.HasTile(tilePosition);
-            bool isOccupied = occupiedManager.IsTileOccupied(tilePosition);
-
-            if (hook != null && tilePosition == hook.GetHookPosition())
-            {
-                isOccupied = false;
-            }
-
-            return hasTile && !isOccupied;
-        }
+        return hasTile && !isOccupied;
     }
 }

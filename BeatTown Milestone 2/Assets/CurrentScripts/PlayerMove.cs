@@ -2,9 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using static StateMachine;
 
 public class PlayerMove : MonoBehaviour
 {
+    public GameObject PPShighlight;
+    public GameObject moveMentHighlight;
     public Tilemap tilemap; // Reference to the Tilemap
     public float moveSpeed = 1f; // Speed of movement
     public int maxMoves = 2; // Maximum moves allowed in a turn
@@ -17,7 +20,7 @@ public class PlayerMove : MonoBehaviour
     private Coroutine currentMoveCoroutine; // Store reference to the current move coroutine
     private PlayerFatigue playerFatigue; // Reference to the PlayerFatigue script
     public int moveFatigueCost = 1; // Fatigue cost for movement
-    public All_SFX All_SFX; // Reference to FMOD Script
+    public All_SFX All_SFX; //Reference FMOD Script
 
     private bool hasFatigueBeenDeductedForMove = false; // Flag to ensure fatigue is only deducted once per move action
 
@@ -31,7 +34,6 @@ public class PlayerMove : MonoBehaviour
         swingScript = GetComponent<Swing>(); // Get reference to Swing script
         playerFatigue = GetComponent<PlayerFatigue>(); // Get reference to PlayerFatigue script
         stateMachine = GetComponent<StateMachine>();
-
         // Register the player with the OccupiedTilesManager
         OccupiedTilesManager.Instance.RegisterPlayer(this);
 
@@ -90,8 +92,13 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
+
+
     public void OnMoveButtonPressed()
     {
+        Debug.Log("Move button pressed."); // Log to check if the method is called
+        moveMentHighlight.SetActive(true);
+        PPShighlight.SetActive(false);
         // Cancel swing mode if active
         if (swingScript != null && swingScript.IsSwinging())
         {
@@ -103,7 +110,7 @@ public class PlayerMove : MonoBehaviour
         {
             canMove = true;
             Debug.Log("Move button pressed. You have " + remainingMoves + " moves available.");
-            currentAction = ActionType.Move; // Set current action to Move
+            CurrentAction = ActionType.Move; // Set current action to Move
         }
         // If the player is out of moves, use fatigue to gain additional moves
         else if (remainingMoves <= 0)
@@ -111,6 +118,7 @@ public class PlayerMove : MonoBehaviour
             // Check if the player has enough fatigue to gain more moves
             if (playerFatigue.CanPerformAction(moveFatigueCost))
             {
+                moveMentHighlight.SetActive(true);
                 // Deduct fatigue and give the player new moves
                 playerFatigue.UseFatigue(moveFatigueCost);
                 remainingMoves = maxMoves; // Reset moves to max amount
@@ -152,15 +160,17 @@ public class PlayerMove : MonoBehaviour
         // Get current position
         Vector3 startPosition = transform.position;
 
-        //stateMachine.ChangeState(WrestlerState.Move);
+        stateMachine.ChangeState(WrestlerState.Move);
 
         // Move towards the target position
         while (elapsedTime < 1f) // Move for 1 second
         {
+            moveMentHighlight.SetActive(false);
             transform.position = Vector3.Lerp(startPosition, targetPosition, (elapsedTime / 1f)); // Lerp for smooth movement
             elapsedTime += Time.deltaTime * moveSpeed; // Increment elapsed time
             yield return null; // Wait for the next frame
         }
+        moveMentHighlight.SetActive(true);
 
         // Ensure the player ends up exactly at the target position
         transform.position = targetPosition;
@@ -175,6 +185,7 @@ public class PlayerMove : MonoBehaviour
         // Check if no remaining moves are left
         if (remainingMoves <= 0)
         {
+            moveMentHighlight.SetActive(false);
             canMove = false; // Disable further movement until reset
             Debug.Log("Movement complete. No moves remaining.");
         }
