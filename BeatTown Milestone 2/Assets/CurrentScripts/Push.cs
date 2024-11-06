@@ -205,12 +205,21 @@ public class Push : MonoBehaviour
         target.position = endPosition;
         Debug.Log($"{target.name} has been pushed to {targetTilePosition}");
 
+        // Update position in OccupiedTilesManager and component-specific CurrentTilePosition
         AIMove targetMove = target.GetComponent<AIMove>();
         if (targetMove != null)
         {
             OccupiedTilesManager.Instance.RemoveOccupiedPosition(targetMove.CurrentTilePosition);
             targetMove.CurrentTilePosition = targetTilePosition;
             OccupiedTilesManager.Instance.AddOccupiedPosition(targetMove.CurrentTilePosition);
+        }
+
+        BarraMove barraMove = target.GetComponent<BarraMove>();
+        if (barraMove != null)
+        {
+            OccupiedTilesManager.Instance.RemoveOccupiedPosition(barraMove.CurrentTilePosition);
+            barraMove.CurrentTilePosition = targetTilePosition;
+            OccupiedTilesManager.Instance.AddOccupiedPosition(barraMove.CurrentTilePosition);
         }
 
         Vector3Int targetTilePos = targetTilePosition;
@@ -221,6 +230,8 @@ public class Push : MonoBehaviour
             hook.HandleSwingOrPushIntoHook(target.gameObject);
         }
     }
+
+
 
     public static class AIUtils
     {
