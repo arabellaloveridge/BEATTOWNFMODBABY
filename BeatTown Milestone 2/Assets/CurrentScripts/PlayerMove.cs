@@ -40,7 +40,7 @@ public class PlayerMove : MonoBehaviour
         // Initialize the current tile position based on the player's starting position
         CurrentTilePosition = tilemap.WorldToCell(transform.position);
         UpdatePlayerPosition();
-        remainingMoves = maxMoves; // Initialize remaining moves
+        remainingMoves = 0; // Initialize remaining moves
         UpdateMoveImages();
         swingScript = GetComponent<Swing>(); // Get reference to Swing script
         playerFatigue = GetComponent<PlayerFatigue>(); // Get reference to PlayerFatigue script
