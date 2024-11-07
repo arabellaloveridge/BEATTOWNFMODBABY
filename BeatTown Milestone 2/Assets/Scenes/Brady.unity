@@ -6995,20 +6995,30 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1724349334}
     m_Modifications:
+    - target: {fileID: 1817006168822708323, guid: 22ac0554a3044534dbd0096a69dd5f89,
+        type: 3}
+      propertyPath: m_Name
+      value: MoveToolTipTXT
+      objectReference: {fileID: 0}
     - target: {fileID: 2113534125722530635, guid: 22ac0554a3044534dbd0096a69dd5f89,
         type: 3}
       propertyPath: m_Name
-      value: ToolTipBoxTest
+      value: MoveToolTipBox
+      objectReference: {fileID: 0}
+    - target: {fileID: 2113534125722530635, guid: 22ac0554a3044534dbd0096a69dd5f89,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3245270492212646143, guid: 22ac0554a3044534dbd0096a69dd5f89,
         type: 3}
       propertyPath: m_Pivot.x
-      value: -0.011556966
+      value: -0.0847379
       objectReference: {fileID: 0}
     - target: {fileID: 3245270492212646143, guid: 22ac0554a3044534dbd0096a69dd5f89,
         type: 3}
       propertyPath: m_Pivot.y
-      value: -0.03556016
+      value: 0.46207115
       objectReference: {fileID: 0}
     - target: {fileID: 3245270492212646143, guid: 22ac0554a3044534dbd0096a69dd5f89,
         type: 3}
@@ -7078,12 +7088,12 @@ PrefabInstance:
     - target: {fileID: 3245270492212646143, guid: 22ac0554a3044534dbd0096a69dd5f89,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -3.4670856
+      value: -25.421368
       objectReference: {fileID: 0}
     - target: {fileID: 3245270492212646143, guid: 22ac0554a3044534dbd0096a69dd5f89,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -5.3340244
+      value: 69.31065
       objectReference: {fileID: 0}
     - target: {fileID: 3245270492212646143, guid: 22ac0554a3044534dbd0096a69dd5f89,
         type: 3}
