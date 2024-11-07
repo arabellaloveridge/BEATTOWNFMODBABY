@@ -65,9 +65,7 @@ public class Push : MonoBehaviour
         isPushing = true;
         selectedTarget = null;
         Debug.Log("Push button pressed, current action: " + playerMove.CurrentAction);
-        OccupiedTilesManager.Instance.RefreshAllOccupiedTiles();
-        Debug.Log("Push: Refreshed all occupied tiles.");
-
+      
     }
 
     public void CancelPush()

@@ -263,5 +263,30 @@ public class OccupiedTilesManager : MonoBehaviour
         }
     }
 
+    public List<string> occupiedTileDetails = new List<string>();
+
+    /// <summary>
+    /// Updates the occupiedTileDetails list to show tile positions and occupiers in the Inspector.
+    /// </summary>
+    private void UpdateOccupiedTileDetails()
+    {
+        occupiedTileDetails.Clear();
+
+        foreach (var position in occupiedTiles)
+        {
+            Vector3 worldPosition = tilemap.GetCellCenterWorld(position);
+            Collider2D occupier = Physics2D.OverlapPoint(worldPosition);
+
+            if (occupier != null)
+            {
+                occupiedTileDetails.Add($"Position: {position} - Occupied by: {occupier.tag}");
+            }
+            else
+            {
+                occupiedTileDetails.Add($"Position: {position} - Occupied by: None");
+            }
+        }
+    }
+
 
 }
