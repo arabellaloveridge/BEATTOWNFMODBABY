@@ -59,6 +59,9 @@ public class Swing : MonoBehaviour
 
         isSwingMode = true;
         Debug.Log("Swing mode activated. Click on an adjacent enemy or Barra to swing.");
+        OccupiedTilesManager.Instance.RefreshAllOccupiedTiles();
+        Debug.Log("Swing: Refreshed all occupied tiles.");
+
     }
 
     void Update()

@@ -242,4 +242,26 @@ public class OccupiedTilesManager : MonoBehaviour
             }
         }
     }
+
+    public void RefreshAllOccupiedTiles()
+    {
+        // Clear all currently tracked occupied positions
+        occupiedTiles.Clear();
+        Debug.Log("OccupiedTilesManager: Cleared all occupied tiles.");
+
+        // Find all units with AIMove or BarraMove components and register their positions
+        foreach (var aiMove in FindObjectsOfType<AIMove>())
+        {
+            AddOccupiedPosition(aiMove.CurrentTilePosition);
+            Debug.Log($"OccupiedTilesManager: Registered AIMove at {aiMove.CurrentTilePosition}");
+        }
+
+        foreach (var barraMove in FindObjectsOfType<BarraMove>())
+        {
+            AddOccupiedPosition(barraMove.CurrentTilePosition);
+            Debug.Log($"OccupiedTilesManager: Registered BarraMove at {barraMove.CurrentTilePosition}");
+        }
+    }
+
+
 }
