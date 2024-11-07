@@ -205,7 +205,7 @@ public class Push : MonoBehaviour
         target.position = endPosition;
         Debug.Log($"{target.name} has been pushed to {targetTilePosition}");
 
-        // Update position in OccupiedTilesManager and component-specific CurrentTilePosition
+        // Update position in OccupiedTilesManager for AIMove or BarraMove
         AIMove targetMove = target.GetComponent<AIMove>();
         if (targetMove != null)
         {
@@ -230,6 +230,7 @@ public class Push : MonoBehaviour
             hook.HandleSwingOrPushIntoHook(target.gameObject);
         }
     }
+
 
 
 
