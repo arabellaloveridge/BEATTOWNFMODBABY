@@ -1,10 +1,18 @@
 using System.Collections;
 using UnityEngine;
+using static StateMachine;
 
 public class BarraAttack : MonoBehaviour
 {
     public int attackDamage = 2;
     public float attackRange = 1.5f;
+    private StateMachine stateMachine;
+
+    private void Start()
+    {
+        stateMachine = GetComponent<StateMachine>();
+
+    }
 
     /// <summary>
     /// Checks if there is a target within attack range.
@@ -30,6 +38,8 @@ public class BarraAttack : MonoBehaviour
         {
             if (hit.CompareTag("Player"))
             {
+                stateMachine.ChangeState(WrestlerState.Punch);
+
                 PlayerHealth playerHealth = hit.GetComponent<PlayerHealth>();
                 if (playerHealth != null)
                 {
@@ -40,6 +50,8 @@ public class BarraAttack : MonoBehaviour
             }
             else if (hit.CompareTag("Enemy"))
             {
+                stateMachine.ChangeState(WrestlerState.Punch);
+
                 EnemyHealth enemyHealth = hit.GetComponent<EnemyHealth>();
                 if (enemyHealth != null)
                 {
