@@ -62,6 +62,13 @@ public class PlayerMove : MonoBehaviour
             Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3Int clickedTilePosition = tilemap.WorldToCell(mouseWorldPosition);
 
+            // Check if the clicked tile is within the bounds of the tilemap
+            if (!IsWithinTilemapBounds(clickedTilePosition) || !tilemap.HasTile(clickedTilePosition))
+            {
+                Debug.Log("Clicked tile is outside of the tilemap bounds or has no valid tile.");
+                return; // Exit if clicked tile is out of bounds or has no tile
+            }
+
             int deltaX = Mathf.Abs(clickedTilePosition.x - CurrentTilePosition.x);
             int deltaY = Mathf.Abs(clickedTilePosition.y - CurrentTilePosition.y);
             bool isDiagonalMove = (deltaX == 1 && deltaY == 1);
@@ -80,14 +87,12 @@ public class PlayerMove : MonoBehaviour
                         moveAllowed = true;
                         Vector3Int intermediateTile = clearIntermediateTile.Value;
                         currentMoveCoroutine = StartCoroutine(MoveAlongPath(intermediateTile, clickedTilePosition));
-
                     }
                 }
                 else if (IsPathClear(CurrentTilePosition, clickedTilePosition))
                 {
                     moveAllowed = true;
                     currentMoveCoroutine = StartCoroutine(MoveToTile(clickedTilePosition));
-
                 }
 
                 if (moveAllowed)
@@ -110,6 +115,14 @@ public class PlayerMove : MonoBehaviour
             }
         }
     }
+
+    // Helper method to check if a tile position is within the tilemap bounds
+    private bool IsWithinTilemapBounds(Vector3Int position)
+    {
+        return tilemap.cellBounds.Contains(position);
+    }
+
+
     private void UpdateMoveImages()
     {
         noMoveImage.SetActive(remainingMoves == 0);
