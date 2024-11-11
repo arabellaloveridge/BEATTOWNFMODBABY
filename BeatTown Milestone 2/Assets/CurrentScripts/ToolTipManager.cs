@@ -13,33 +13,33 @@ public class ToolTipManager : MonoBehaviour
     private void Awake()
     {
         if (_instance != null && _instance != this)
-        {
+        { // If there is already an instance of the tooltip manager, destroy this one
             Destroy(this.gameObject);
         }
         else
-        {
+        { // Otherwise, set this as the instance
             _instance = this;
         }
     }
 
     private void Start()
     {
-        Cursor.visible = true;
-        gameObject.SetActive(false);
+        Cursor.visible = true; // Make the cursor visible
+        gameObject.SetActive(false); // Hide the tooltip
     }
 
     private void Update()
     {
-        transform.position = Input.mousePosition;
+        transform.position = Input.mousePosition; // Update the position of the tooltip to the mouse position
     }
 
-    public void SetAndShowToolTip(string messsage)
+    public void SetAndShowToolTip(string messsage) // Set the tooltip message and show the tooltip
     {
         gameObject.SetActive(true);
         textComponent.text = messsage;
     }
 
-    public void HideToolTip()
+    public void HideToolTip() // Hide the tooltip
     {
         gameObject.SetActive(false);
         textComponent.text = string.Empty;
