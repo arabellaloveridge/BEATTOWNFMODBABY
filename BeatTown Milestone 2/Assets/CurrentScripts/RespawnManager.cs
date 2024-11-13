@@ -205,6 +205,8 @@ public class RespawnManager : MonoBehaviour
         }
 
         Debug.Log("RespawnManager: Spawned a new Barra at " + spawnTile);
+
+        All_SFX.UpdateCudaCount();
         
     }
 }

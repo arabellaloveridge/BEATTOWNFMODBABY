@@ -38,9 +38,6 @@ public class PlayerMove : MonoBehaviour
 
         // Register the player with the OccupiedTilesManager
         OccupiedTilesManager.Instance.RegisterPlayer(this);
-
-        All_SFX.PlayFishBattle();
-        All_SFX.UpdateCudaCount();
     }
 
     void Update()

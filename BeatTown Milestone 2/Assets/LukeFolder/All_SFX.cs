@@ -14,13 +14,15 @@ public class All_SFX : MonoBehaviour
     FMOD.Studio.EventInstance Push;
     FMOD.Studio.EventInstance PlayerHurt;
 
-    int Cuda_Count = 0;
+    bool Cuda_Count = false;
 
 
 
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("Cuda_Count set false");
+        Debug.Log(gameObject.name);
 
         UISelect = FMODUnity.RuntimeManager.CreateInstance("event:/Ring Sounds/UI/UI Click");
         walking = FMODUnity.RuntimeManager.CreateInstance("event:/Ring Sounds/Action/RingStep");
@@ -30,17 +32,20 @@ public class All_SFX : MonoBehaviour
         Swing = FMODUnity.RuntimeManager.CreateInstance("event:/Ring Sounds/Action/Carry");
         Push = FMODUnity.RuntimeManager.CreateInstance("event:/Ring Sounds/Action/Push");
         PlayerHurt = FMODUnity.RuntimeManager.CreateInstance("event:/Ring Sounds/Player Hurt");
+        PlayFishBattle();
+        
 
     }
 
-    public void UpdateCudaCount()
-    {
+   public void UpdateCudaCount()
+{
+    Cuda_Count = true;
 
-        Cuda_Count++ ;
+    FishBattle.setParameterByName("Cuda_Count", Cuda_Count ? 1 : 0);
 
-        FishBattle.setParameterByName("Cuda_Count", Cuda_Count);
+    Debug.Log("cuda count: " + Cuda_Count);
+}
 
-    }
 
     public void PlayWalkingSound()
     {
@@ -91,7 +96,7 @@ public class All_SFX : MonoBehaviour
     void Update()
     {
 
-       
+        Debug.Log("cuda count: " + Cuda_Count);
 
 
 
